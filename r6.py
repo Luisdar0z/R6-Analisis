@@ -276,7 +276,7 @@ else:
         
         # Muestra las imágenes y los nombres de los agentes seleccionados en la ventana
         for i, (index, row) in enumerate(atacantes_seleccionados.iterrows()):
-            imagen = Image.open(row['Imagen'])
+            imagen = Image.open('Data/' + row['Imagen'])
             photo = ImageTk.PhotoImage(imagen)
             label = tk.Label(tab3, image=photo, highlightbackground='blue', highlightthickness=2, width=max_width, height=max_height)
             label.image = photo
@@ -287,7 +287,7 @@ else:
             tk.OptionMenu(tab3,resultados_seleccionados[row['Agente']],*resultados).grid(row=2,column=i)
 
         for i,(index,row) in enumerate(defensores_seleccionados.iterrows()):
-            imagen = Image.open(row['Imagen'])
+            imagen = Image.open('Data/' + row['Imagen'])
             photo = ImageTk.PhotoImage(imagen)
             label = tk.Label(tab3,image=photo,highlightbackground='green',highlightthickness=2,width=max_width,height=max_height)
             label.image = photo
