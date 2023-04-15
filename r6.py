@@ -232,13 +232,16 @@ else:
     mapa_seleccionado.set(mapas[0])
     modo_seleccionado.set(modos[0])
     
+    tk.Label(tab3).grid(row=9, columnspan=6, sticky='ew')
+    tk.Label(tab3, text='Parámetros', background='#ec6681').grid(row=10, columnspan=6, sticky='ew')
+    
     # Agrega una etiqueta de texto a la izquierda de la lista desplegable
-    tk.Label(tab3, text='Mapas:').grid(row=9, column=0)
-    tk.Label(tab3, text='Modos:').grid(row=10, column=0)
+    tk.Label(tab3, text='Mapas:').grid(row=11, column=1)
+    tk.Label(tab3, text='Modos:').grid(row=12, column=1)
     
     # Crea una lista desplegable con los nombres de los mapas utilizando OptionMenu
-    tk.OptionMenu(tab3, mapa_seleccionado, *mapas).grid(row=9, column=1)
-    tk.OptionMenu(tab3, modo_seleccionado, *modos).grid(row=10, column=1)
+    tk.OptionMenu(tab3, mapa_seleccionado, *mapas).grid(row=11, column=3)
+    tk.OptionMenu(tab3, modo_seleccionado, *modos).grid(row=12, column=3)
     
     # Define una función para imprimir el valor seleccionado en la lista desplegable al cerrar la ventana        
     def guardar():
@@ -441,24 +444,34 @@ else:
         mapa_seleccionado.set(mapas[0])
         modo_seleccionado.set(modos[0])
         
-        # Agrega una etiqueta de texto a la izquierda de la lista desplegable
-        tk.Label(tab3, text='Mapas:').grid(row=9,column=0)
-        tk.Label(tab3, text='Modos:').grid(row=10,column=0)
+        tk.Label(tab3).grid(row=9, columnspan=6, sticky='ew')
+        tk.Label(tab3, text='Parámetros', background='#ec6681').grid(row=10, columnspan=6, sticky='ew')
         
-        # Crea una lista desplegable con los nombres de los mapas y modos utilizando OptionMenu
-        tk.OptionMenu(tab3,mapa_seleccionado,*mapas).grid(row=9,column=1)
-        tk.OptionMenu(tab3,modo_seleccionado,*modos).grid(row=10,column=1)
+        # Agrega una etiqueta de texto a la izquierda de la lista desplegable
+        tk.Label(tab3, text='Mapas:').grid(row=11, column=1)
+        tk.Label(tab3, text='Modos:').grid(row=12, column=1)
+        
+        # Crea una lista desplegable con los nombres de los mapas utilizando OptionMenu
+        tk.OptionMenu(tab3, mapa_seleccionado, *mapas).grid(row=11, column=3)
+        tk.OptionMenu(tab3, modo_seleccionado, *modos).grid(row=12, column=3)
+        
+        tk.Label(tab3).grid(row=13, columnspan=6, sticky='ew')
+        tk.Label(tab3, text='Opciones', background='#8b98e8').grid(row=14, columnspan=6, sticky='ew')
         
         # Crea un botón para guardar los datos en el archivo xlsx sin cerrar la ventana
-        tk.Button(tab3,text='Guardar',command=guardar).grid(row=11,column=0)
+        tk.Button(tab3,text='Guardar',command=guardar).grid(row=15,column=1)
         
         # Crea un botón para reiniciar todos los valores de la ventana y volver a elegir agentes de manera aleatoria
-        tk.Button(tab3, text='Resetear', command=resetear).grid(row=11, column=1)
+        tk.Button(tab3, text='Resetear', command=resetear).grid(row=15, column=3)
+    
+    tk.Label(tab3).grid(row=13, columnspan=6, sticky='ew')
+    tk.Label(tab3, text='Opciones', background='#8b98e8').grid(row=14, columnspan=6, sticky='ew')
         
     # Crea un botón para reiniciar todos los valores de la ventana y volver a elegir agentes de manera aleatoria
-    tk.Button(tab3, text='Resetear', command=resetear).grid(row=11, column=1)
+    tk.Button(tab3, text='Resetear', command=resetear).grid(row=15, column=3)
     # Crea un botón para guardar los datos en el archivo xlsx sin cerrar la ventana
-    tk.Button(tab3, text='Guardar', command=guardar).grid(row=11, column=0)
+    tk.Button(tab3, text='Guardar', command=guardar).grid(row=15, column=1)
+    
     
 # Crear la primera pestaña ("Tabla General")
 tab1 = ttk.Frame(notebook)
