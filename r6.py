@@ -127,32 +127,95 @@ else:
         resultados_seleccionados[row['Agente']] = tk.StringVar(tab3)
         resultados_seleccionados[row['Agente']].set(resultados[2])
     
+    def show_agent_options(agent_type, current_agent_index):
+        # Obtener una lista de agentes disponibles del tipo especificado
+        if agent_type == 'Ataque':
+            available_agents = list(set(atacantes['Agente']) - set([label.cget('text') for label in atacantes_labels]))
+        else:
+            available_agents = list(set(defensores['Agente']) - set([label.cget('text') for label in defensores_labels]))
+        
+        # Cree una ventana de nivel superior para mostrar el menú desplegable
+        toplevel = tk.Toplevel(tab3)
+        
+        # Crear un StringVar para almacenar el agente seleccionado
+        selected_agent = tk.StringVar(toplevel)
+        
+        # Crear un OptionMenu para mostrar los agentes disponibles
+        optionmenu = tk.OptionMenu(toplevel, selected_agent, *available_agents)
+        optionmenu.pack()
+        
+        # Crear una función para actualizar el agente mostrado cuando el usuario hace una selección
+        def update_agent():
+            
+            # Encuentre los widgets de etiqueta y botón para el agente actual
+            if agent_type == 'Ataque':
+                agent_label = atacantes_labels[current_agent_index]
+            else:
+                agent_label = defensores_labels[current_agent_index]
+                
+            for button in tab3.winfo_children():
+                if isinstance(button, tk.Button) and hasattr(button, 'image'):
+                    if button.grid_info()['row'] == agent_label.grid_info()['row'] - 1 and button.grid_info()['column'] == agent_label.grid_info()['column']:
+                        agent_image_button = button
+                        break
+                    
+            # Actualizar el nombre del agente mostrado
+            new_agent = selected_agent.get()
+            agent_label.config(text=new_agent)
+            
+            # Actualice la imagen del agente que se muestra
+            image_path = os.path.join(os.path.dirname(file_path), f'{new_agent}.png')
+            if os.path.exists(image_path):
+                image = Image.open(image_path)
+                photo = ImageTk.PhotoImage(image)
+                agent_image_button.config(image=photo)
+                agent_image_button.image = photo
+                
+            # Cerrar la ventana de nivel superior
+            toplevel.destroy()
+            
+        # Cree un botón para actualizar el agente que se muestra cuando se hace clic
+        button = tk.Button(toplevel, text='OK', command=update_agent)
+        button.pack()
+                        
+    def create_show_agent_options_callback(agent_type, current_agent_index):
+        def callback():
+            show_agent_options(agent_type, current_agent_index)
+        return callback
+    
     # Muestra las imágenes y los nombres de los agentes seleccionados en la ventana utilizando grid
+    tk.Label(tab3, text='Ataque', background='#4682b4').grid(row=0, columnspan=6, sticky='ew')
     for i, (index, row) in enumerate(atacantes_seleccionados.iterrows()):
+        
         imagen = Image.open('Data/' + row['Imagen'])
         photo = ImageTk.PhotoImage(imagen)
-        label = tk.Label(tab3, image=photo, highlightbackground='blue', highlightthickness=2, width=max_width, height=max_height)
-        label.image = photo
-        label.grid(row=0, column=i)
-        tk.Label(tab3, text=row['Agente']).grid(row=1, column=i)
+        button = tk.Button(tab3, image=photo, highlightbackground='blue', highlightthickness=2, width=max_width, height=max_height,
+                    command=create_show_agent_options_callback('Ataque', i))
+        button.image = photo
+        button.grid(row=1, column=i)
+        tk.Label(tab3, text=row['Agente']).grid(row=2, column=i)
         # Crea una etiqueta para mostrar el nombre del agente atacante y almacena una referencia a la etiqueta en la lista atacantes_labels
         label = tk.Label(tab3, text=row['Agente'])
-        label.grid(row=1, column=i)
+        label.grid(row=2, column=i)
         atacantes_labels.append(label)
-        tk.OptionMenu(tab3, resultados_seleccionados[row['Agente']], *resultados).grid(row=2, column=i)
+        tk.OptionMenu(tab3, resultados_seleccionados[row['Agente']], *resultados).grid(row=3, column=i)
 
+    tk.Label(tab3).grid(row=4, columnspan=6, sticky='ew')
+    tk.Label(tab3, text='Defensa', background='#5cb85c').grid(row=5, columnspan=6, sticky='ew')
     for i, (index, row) in enumerate(defensores_seleccionados.iterrows()):
+        
         imagen = Image.open('Data/' + row['Imagen'])
         photo = ImageTk.PhotoImage(imagen)
-        label = tk.Label(tab3, image=photo, highlightbackground='green', highlightthickness=2, width=max_width, height=max_height)
-        label.image = photo
-        label.grid(row=3, column=i, pady=20)
-        tk.Label(tab3, text=row['Agente']).grid(row=4, column=i)
+        button = tk.Button(tab3, image=photo, highlightbackground='green', highlightthickness=2, width=max_width, height=max_height,
+                    command=create_show_agent_options_callback('Defensa', i))
+        button.image = photo
+        button.grid(row=6, column=i)
+        tk.Label(tab3, text=row['Agente']).grid(row=7, column=i)
         # Crea una etiqueta para mostrar el nombre del agente defensor y almacena una referencia a la etiqueta en la lista defensores_labels
         label = tk.Label(tab3, text=row['Agente'])
-        label.grid(row=4, column=i)
+        label.grid(row=7, column=i)
         defensores_labels.append(label)
-        tk.OptionMenu(tab3, resultados_seleccionados[row['Agente']], *resultados).grid(row=5, column=i)
+        tk.OptionMenu(tab3, resultados_seleccionados[row['Agente']], *resultados).grid(row=8, column=i)
         
     # Carga la hoja Mapas del archivo xlsx en un DataFrame de pandas
     mapas_df = pd.read_excel('Data/agentes_r6.xlsx', sheet_name='Mapas')
@@ -170,12 +233,12 @@ else:
     modo_seleccionado.set(modos[0])
     
     # Agrega una etiqueta de texto a la izquierda de la lista desplegable
-    tk.Label(tab3, text='Mapas:').grid(row=6, column=0)
-    tk.Label(tab3, text='Modos:').grid(row=7, column=0)
+    tk.Label(tab3, text='Mapas:').grid(row=9, column=0)
+    tk.Label(tab3, text='Modos:').grid(row=10, column=0)
     
     # Crea una lista desplegable con los nombres de los mapas utilizando OptionMenu
-    tk.OptionMenu(tab3, mapa_seleccionado, *mapas).grid(row=6, column=1)
-    tk.OptionMenu(tab3, modo_seleccionado, *modos).grid(row=7, column=1)
+    tk.OptionMenu(tab3, mapa_seleccionado, *mapas).grid(row=9, column=1)
+    tk.OptionMenu(tab3, modo_seleccionado, *modos).grid(row=10, column=1)
     
     # Define una función para imprimir el valor seleccionado en la lista desplegable al cerrar la ventana        
     def guardar():
@@ -274,28 +337,100 @@ else:
             resultados_seleccionados[row['Agente']] = tk.StringVar(tab3)
             resultados_seleccionados[row['Agente']].set(resultados[2])
         
-        # Muestra las imágenes y los nombres de los agentes seleccionados en la ventana
+        # Limpiar las listas atacantes_labels y defensores_labels
+        atacantes_labels.clear()
+        defensores_labels.clear()
+        
+        def show_agent_options(agent_type, current_agent_index):
+            # Obtener una lista de agentes disponibles del tipo especificado
+            if agent_type == 'Ataque':
+                available_agents = list(set(atacantes['Agente']) - set([label.cget('text') for label in atacantes_labels]))
+            else:
+                available_agents = list(set(defensores['Agente']) - set([label.cget('text') for label in defensores_labels]))
+            
+            # Cree una ventana de nivel superior para mostrar el menú desplegable
+            toplevel = tk.Toplevel(tab3)
+            
+            # Crear un StringVar para almacenar el agente seleccionado
+            selected_agent = tk.StringVar(toplevel)
+            
+            # Crear un OptionMenu para mostrar los agentes disponibles
+            optionmenu = tk.OptionMenu(toplevel, selected_agent, *available_agents)
+            optionmenu.pack()
+            
+            # Crear una función para actualizar el agente mostrado cuando el usuario hace una selección
+            def update_agent():
+                
+                # Encuentre los widgets de etiqueta y botón para el agente actual
+                if agent_type == 'Ataque':
+                    agent_label = atacantes_labels[current_agent_index]
+                else:
+                    agent_label = defensores_labels[current_agent_index]
+                    
+                for button in tab3.winfo_children():
+                    if isinstance(button, tk.Button) and hasattr(button, 'image'):
+                        if button.grid_info()['row'] == agent_label.grid_info()['row'] - 1 and button.grid_info()['column'] == agent_label.grid_info()['column']:
+                            agent_image_button = button
+                            break
+                        
+                # Actualizar el nombre del agente mostrado
+                new_agent = selected_agent.get()
+                agent_label.config(text=new_agent)
+                
+                # Actualice la imagen del agente que se muestra
+                image_path = os.path.join(os.path.dirname(file_path), f'{new_agent}.png')
+                if os.path.exists(image_path):
+                    image = Image.open(image_path)
+                    photo = ImageTk.PhotoImage(image)
+                    agent_image_button.config(image=photo)
+                    agent_image_button.image = photo
+                    
+                # Cerrar la ventana de nivel superior
+                toplevel.destroy()
+                
+            # Cree un botón para actualizar el agente que se muestra cuando se hace clic
+            button = tk.Button(toplevel, text='OK', command=update_agent)
+            button.pack()
+                            
+        
+        def create_show_agent_options_callback(agent_type, current_agent_index):
+            def callback():
+                show_agent_options(agent_type, current_agent_index)
+            return callback
+        
+        # Muestra las imágenes y los nombres de los agentes seleccionados en la ventana utilizando grid
+        tk.Label(tab3, text='Ataque', background='#4682b4').grid(row=0, columnspan=6, sticky='ew')
         for i, (index, row) in enumerate(atacantes_seleccionados.iterrows()):
+            
             imagen = Image.open('Data/' + row['Imagen'])
             photo = ImageTk.PhotoImage(imagen)
-            label = tk.Label(tab3, image=photo, highlightbackground='blue', highlightthickness=2, width=max_width, height=max_height)
-            label.image = photo
-            label.grid(row=0, column=i)
-            
-            tk.Label(tab3, text=row['Agente']).grid(row=1, column=i)
-            
-            tk.OptionMenu(tab3,resultados_seleccionados[row['Agente']],*resultados).grid(row=2,column=i)
+            button = tk.Button(tab3, image=photo, highlightbackground='blue', highlightthickness=2, width=max_width, height=max_height,
+                        command=create_show_agent_options_callback('Ataque', i))
+            button.image = photo
+            button.grid(row=1, column=i)
+            tk.Label(tab3, text=row['Agente']).grid(row=2, column=i)
+            # Crea una etiqueta para mostrar el nombre del agente atacante y almacena una referencia a la etiqueta en la lista atacantes_labels
+            label = tk.Label(tab3, text=row['Agente'])
+            label.grid(row=2, column=i)
+            atacantes_labels.append(label)
+            tk.OptionMenu(tab3, resultados_seleccionados[row['Agente']], *resultados).grid(row=3, column=i)
 
-        for i,(index,row) in enumerate(defensores_seleccionados.iterrows()):
+        tk.Label(tab3).grid(row=4, columnspan=6, sticky='ew')
+        tk.Label(tab3, text='Defensa', background='#5cb85c').grid(row=5, columnspan=6, sticky='ew')
+        for i, (index, row) in enumerate(defensores_seleccionados.iterrows()):
+            
             imagen = Image.open('Data/' + row['Imagen'])
             photo = ImageTk.PhotoImage(imagen)
-            label = tk.Label(tab3,image=photo,highlightbackground='green',highlightthickness=2,width=max_width,height=max_height)
-            label.image = photo
-            label.grid(row=3,column=i,pady=20)
-            
-            tk.Label(tab3, text=row['Agente']).grid(row=4,column=i)
-            
-            tk.OptionMenu(tab3,resultados_seleccionados[row['Agente']],*resultados).grid(row=5,column=i)
+            button = tk.Button(tab3, image=photo, highlightbackground='green', highlightthickness=2, width=max_width, height=max_height,
+                        command=create_show_agent_options_callback('Defensa', i))
+            button.image = photo
+            button.grid(row=6, column=i)
+            tk.Label(tab3, text=row['Agente']).grid(row=7, column=i)
+            # Crea una etiqueta para mostrar el nombre del agente defensor y almacena una referencia a la etiqueta en la lista defensores_labels
+            label = tk.Label(tab3, text=row['Agente'])
+            label.grid(row=7, column=i)
+            defensores_labels.append(label)
+            tk.OptionMenu(tab3, resultados_seleccionados[row['Agente']], *resultados).grid(row=8, column=i)
         
         print("Reseteo")
         # Crea una lista con los nombres de los mapas y modos
@@ -307,33 +442,32 @@ else:
         modo_seleccionado.set(modos[0])
         
         # Agrega una etiqueta de texto a la izquierda de la lista desplegable
-        tk.Label(tab3, text='Mapas:').grid(row=6,column=0)
-        tk.Label(tab3, text='Modos:').grid(row=7,column=0)
+        tk.Label(tab3, text='Mapas:').grid(row=9,column=0)
+        tk.Label(tab3, text='Modos:').grid(row=10,column=0)
         
         # Crea una lista desplegable con los nombres de los mapas y modos utilizando OptionMenu
-        tk.OptionMenu(tab3,mapa_seleccionado,*mapas).grid(row=6,column=1)
-        tk.OptionMenu(tab3,modo_seleccionado,*modos).grid(row=7,column=1)
+        tk.OptionMenu(tab3,mapa_seleccionado,*mapas).grid(row=9,column=1)
+        tk.OptionMenu(tab3,modo_seleccionado,*modos).grid(row=10,column=1)
         
         # Crea un botón para guardar los datos en el archivo xlsx sin cerrar la ventana
-        tk.Button(tab3,text='Guardar',command=guardar).grid(row=8,column=0)
+        tk.Button(tab3,text='Guardar',command=guardar).grid(row=11,column=0)
         
         # Crea un botón para reiniciar todos los valores de la ventana y volver a elegir agentes de manera aleatoria
-        tk.Button(tab3, text='Resetear', command=resetear).grid(row=8, column=1)
+        tk.Button(tab3, text='Resetear', command=resetear).grid(row=11, column=1)
         
     # Crea un botón para reiniciar todos los valores de la ventana y volver a elegir agentes de manera aleatoria
-    tk.Button(tab3, text='Resetear', command=resetear).grid(row=8, column=1)
+    tk.Button(tab3, text='Resetear', command=resetear).grid(row=11, column=1)
     # Crea un botón para guardar los datos en el archivo xlsx sin cerrar la ventana
-    tk.Button(tab3, text='Guardar', command=guardar).grid(row=8, column=0)
-
+    tk.Button(tab3, text='Guardar', command=guardar).grid(row=11, column=0)
+    
 # Crear la primera pestaña ("Tabla General")
 tab1 = ttk.Frame(notebook)
 notebook.add(tab1, text='Tabla General')
 
-
-
 # Crear un contenedor para la tabla y la barra deslizante
 table_container = tk.Frame(tab1)
 table_container.pack(fill='both', expand=True)
+
 
 # Crear una tabla para mostrar los datos
 table = tk.Canvas(table_container)
@@ -348,10 +482,12 @@ table.configure(xscrollcommand=scrollbar.set)
 table_frame = tk.Frame(table)
 table.create_window(0, 0, window=table_frame, anchor='nw')
 
+
 def recargar():
     # Read the data from the Excel file into a pandas DataFrame
     df = pd.read_excel(file_path, sheet_name='ToT')
     # Agregar encabezados de columna
+    
     for col, column in enumerate(df.columns):
         header = tk.Label(table_frame, text=column, font=('Arial', 12, 'bold'))
         header.grid(row=0, column=col)
