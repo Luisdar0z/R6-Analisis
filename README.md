@@ -1,7 +1,7 @@
 # R6-Analisis
 
 Pestaña Partidas
-![image](https://user-images.githubusercontent.com/19338996/230812716-82425a2e-8979-4197-b961-01b60e8da27a.png)
+![image](https://user-images.githubusercontent.com/19338996/232248876-ee534003-0453-4160-ae3a-5119364bf6fe.png)
 
 
 Pestaña Tabla General
