@@ -161,6 +161,7 @@ else:
                     
             # Actualizar el nombre del agente mostrado
             new_agent = selected_agent.get()
+            old_agent = agent_label.cget('text')
             agent_label.config(text=new_agent)
             
             # Actualice la imagen del agente que se muestra
@@ -170,6 +171,9 @@ else:
                 photo = ImageTk.PhotoImage(image)
                 agent_image_button.config(image=photo)
                 agent_image_button.image = photo
+            
+            # Actualizar la clave correspondiente en el diccionario resultados_seleccionados
+            resultados_seleccionados[new_agent] = resultados_seleccionados.pop(old_agent)                   
                 
             # Cerrar la ventana de nivel superior
             toplevel.destroy()
@@ -363,7 +367,7 @@ else:
             
             # Crear una función para actualizar el agente mostrado cuando el usuario hace una selección
             def update_agent():
-                
+            
                 # Encuentre los widgets de etiqueta y botón para el agente actual
                 if agent_type == 'Ataque':
                     agent_label = atacantes_labels[current_agent_index]
@@ -378,6 +382,7 @@ else:
                         
                 # Actualizar el nombre del agente mostrado
                 new_agent = selected_agent.get()
+                old_agent = agent_label.cget('text')
                 agent_label.config(text=new_agent)
                 
                 # Actualice la imagen del agente que se muestra
@@ -387,6 +392,9 @@ else:
                     photo = ImageTk.PhotoImage(image)
                     agent_image_button.config(image=photo)
                     agent_image_button.image = photo
+                
+                # Actualizar la clave correspondiente en el diccionario resultados_seleccionados
+                resultados_seleccionados[new_agent] = resultados_seleccionados.pop(old_agent)                   
                     
                 # Cerrar la ventana de nivel superior
                 toplevel.destroy()
